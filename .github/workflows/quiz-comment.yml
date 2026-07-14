@@ -1,0 +1,84 @@
+name: Quiz 結果コメント
+
+on:
+  workflow_run:
+    workflows: ['Quiz 自動判定']
+    types: [completed]
+
+permissions:
+  pull-requests: write
+  issues: write
+  actions: read
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.event == 'pull_request'
+
+    steps:
+      - name: Artifact をダウンロード
+        uses: actions/download-artifact@v4
+        with:
+          name: quiz-result
+          path: quiz-result
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 結果を読み取り
+        id: read
+        run: |
+          echo "pr_number=$(cat quiz-result/pr_number.txt)" >> "$GITHUB_OUTPUT"
+          echo "student_file=$(cat quiz-result/student_file.txt)" >> "$GITHUB_OUTPUT"
+          echo "result=$(cat quiz-result/result.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: PR にコメントを投稿
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = parseInt('${{ steps.read.outputs.pr_number }}', 10);
+            const file = '${{ steps.read.outputs.student_file }}';
+            const result = '${{ steps.read.outputs.result }}';
+
+            if (!prNumber) {
+              core.setFailed(`PR番号が取得できませんでした: "${prNumber}"`);
+              return;
+            }
+
+            let body;
+            if (result === 'passed') {
+              body = [
+                '## ✅ 合格！',
+                '',
+                `**${file}** の React コンポーネント（props で受け取ったデータの JSX 描画）が正しく動きました。`,
+                'お疲れ様でした！',
+              ].join('\n');
+            } else if (result === 'no_file') {
+              body = [
+                '## ⚠️ ファイルが見つかりません',
+                '',
+                '`students/{番号}/index.html` が変更されていません。',
+                '正しいフォルダに解答を置いてから、再度 push してください。',
+              ].join('\n');
+            } else {
+              body = [
+                '## ❌ 不合格',
+                '',
+                `**${file}** のプロフィールカードが期待通りに描画されませんでした。`,
+                '',
+                '**確認ポイント**',
+                '- `Profile` の `return null` を、JSX の `return <li className="profile-card">{emoji} {name}（{role}）</li>;` に書き換えましたか？',
+                '- 変数の埋め込みは `${name}` ではなく `{name}` です（JSX はテンプレートリテラルではないので `$` もバッククォートも不要）',
+                '- `class` ではなく `className` と書きましたか？（丸かっこは全角の `（）`）',
+                '- JSX をクォートで囲んでいませんか？（`return \'<li>...\'` のように文字列にすると動きません）',
+                '- 用意済みの分割代入（`const { name, role, emoji } = props`）・`App`・`createRoot` の部分を書き換えていませんか？',
+                '',
+                'コードを修正して再度 push してください。',
+              ].join('\n');
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
