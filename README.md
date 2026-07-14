@@ -12,6 +12,8 @@ jsQuiz09 でやった「分割代入」「テンプレートリテラルへの�
 
 ### 完成イメージ
 
+![完成イメージ](./jsQuiz10.png)
+
 ```
 ☕ 青山ひかり（店長）
 🍵 井上たくみ（バリスタ）
@@ -46,7 +48,7 @@ jsQuiz09 でやった「分割代入」「テンプレートリテラルへの�
 ```
 
 - **React 19 から UMD 版（`<script src>` でグローバル変数を作る形式）が廃止**されたため、ESM 対応 CDN の **esm.sh** から `import` します
-- ブラウザの `import` は本来 `'react'` のような**名前だけの指定（裸のモジュール名）を解決できません**。**import map** がその名前を CDN の URL に対応付けてくれるので、実務（Vite などのビルドツール環境・後期に扱います）と**同じ import 文**が書けます
+- ブラウザの `import` は本来 `'react'` のような**名前だけの指定（裸のモジュール名）を解決できません**。**import map** がその名前を CDN の URL に対応付けてくれるので、実務（Vite などのビルドツール環境）と**同じ import 文**が書けます
 - `react/jsx-runtime` のエントリは、Babel が JSX を変換したコードの中で**自動的に import される**モジュールです（消すと画面が真っ白になります）
 - **JSX**（`<li>...</li>` を JS の中に直接書く記法）はブラウザがそのまま解釈できないので、**Babel Standalone** がページ内で変換しています。`type="text/babel"` が付いたスクリプトが変換対象です
 - この方式は学習用です。実務では Vite などのビルドツールで**事前に**変換します
@@ -86,7 +88,11 @@ function Profile(props) {
 - `return null;` を、**JSX の return** に書き換えます：
 
   ```jsx
-  return <li className="profile-card">{emoji} {name}（{role}）</li>;
+  return (
+    <li className="profile-card">
+      {emoji} {name}（{role}）
+    </li>
+  );
   ```
 
 - 表示例: `☕ 青山ひかり（店長）`（丸かっこは全角の `（）`）
@@ -105,7 +111,7 @@ function Profile(props) {
 `<Profile name="青山ひかり" role="店長" emoji="☕" />` と書くと、`Profile` には
 
 ```js
-props = { name: '青山ひかり', role: '店長', emoji: '☕' }
+props = { name: '青山ひかり', role: '店長', emoji: '☕' };
 ```
 
 が届きます。骨組みの `const { name, role, emoji } = props;` は**オブジェクトの分割代入**です。
@@ -113,11 +119,11 @@ jsQuiz09 の `const [name, price, emoji] = item;`（配列版・`[ ]`）のオ�
 
 ### 3. JSX への変数埋め込みは `{ }`（jsQuiz09 との違いに注意）
 
-|  | jsQuiz09（テンプレートリテラル） | jsQuiz10（JSX） |
-|---|---|---|
-| 全体 | `` `<li>...</li>` ``（バッククォートで囲む＝文字列） | `<li>...</li>`（囲まない＝文字列ではない） |
-| 変数埋め込み | `${name}` | `{name}` |
-| class 属性 | `class="..."` | `className="..."` |
+|              | jsQuiz09（テンプレートリテラル）                     | jsQuiz10（JSX）                            |
+| ------------ | ---------------------------------------------------- | ------------------------------------------ |
+| 全体         | `` `<li>...</li>` ``（バッククォートで囲む＝文字列） | `<li>...</li>`（囲まない＝文字列ではない） |
+| 変数埋め込み | `${name}`                                            | `{name}`                                   |
+| class 属性   | `class="..."`                                        | `className="..."`                          |
 
 - JSX は**文字列ではない**ので、クォートやバッククォートで囲みません。囲むとただの文字がそのまま表示されます
 - `class` は JS の予約語なので、JSX では `className` と書きます
@@ -133,26 +139,33 @@ jsQuiz09 の `const [name, price, emoji] = item;`（配列版・`[ ]`）のオ�
 ## 提出方法
 
 ### ① Fork
+
 このリポジトリを自分のアカウントに Fork してください。
 
 ### ② clone
+
 自分の Fork を GitHub Desktop で clone します。
 
 ### ③ branch を作る
+
 ブランチ名に「quiz10/自分の名前」を記入する（例：quiz10/kawaguchi）
 
 ### ④ コードを書く
+
 `students/{自分の番号}/index.html` を編集して課題を完成させます。
 （例：出席番号が 7 番なら `students/7/index.html`）
 
 ルートの `index.html` を `students/{自分の番号}/index.html` にコピーしてから編集するのが簡単です。
 
 ### ⑤ commit / push
+
 変更を commit して push してください。
-- title：出席番号_名前（例：28_河口）
+
+- title：出席番号*名前（例：28*河口）
 - message：提出します。
 
 ### ⑥ Pull Request を作成
+
 元のリポジトリに向けて Pull Request を作成してください。
 
 ## 判定について
