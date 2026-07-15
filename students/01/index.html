@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>jsQuiz10 - React入門（コンポーネントとprops）</title>
+  <style>
+    body {
+      padding: 0 16px;
+      font-family: sans-serif;
+    }
+
+    h1 {
+      letter-spacing: 0.08em;
+    }
+
+    .profile-list {
+      list-style: none;
+      padding: 0;
+      max-width: 360px;
+    }
+
+    .profile-card {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      font-size: 1.05rem;
+      background: #fffdf7;
+    }
+  </style>
+</head>
+<body>
+  <h1>TRIDENT CAFE スタッフ紹介</h1>
+  <p>React のコンポーネントで作ったプロフィールカードが3枚表示されます。</p>
+
+  <!-- React がこの中に描画します（最初は空） -->
+  <div id="root"></div>
+  <!-- import map（用意済み） -->
+  <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@19",
+          "react/jsx-runtime": "https://esm.sh/react@19/jsx-runtime",
+          "react-dom/client": "https://esm.sh/react-dom@19/client"
+        }
+      }
+    </script>
+  <!-- Babel Standalone（用意済み） -->
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel" data-type="module" data-presets="react">
+    // ===== 用意済み：React 本体の読み込み（書き換えないこと）=====
+
+    import React from 'react';
+    import { createRoot } from 'react-dom/client';
+
+    // ===== ここから下があなたの課題です =====
+
+    /* やること：Profile コンポーネントを完成させること。
+       props で受け取った name / role / emoji を使って、
+       <li className="profile-card">{emoji} {name}（{role}）</li>
+       の形の JSX を return する関数。
+
+       ■ JSX のルール
+       - 変数の埋め込みは ${name} ではなく {name}（波かっこだけ・バッククォート不要）
+       - class 属性は className と書く
+       - 文字列ではないので、タグ全体をクォートで囲まない */
+
+    // 課題：Profile コンポーネントを作る
+    function Profile(props) {
+      const { name, role, emoji } = props;
+      // ↓ ここを書き換える（課題）
+      return null;
+    }
+    // ===== ここまでがあなたの課題です =====
+
+
+
+
+    // ===== ここから下は用意済みです（書き換えないこと）=====
+    // App コンポーネント：Profile に props を渡して3枚並べる。
+    // props は「HTML の属性のような書き方」で渡し、コンポーネント側は関数の引数で受け取る。
+    function App() {
+      return (
+        <ul className="profile-list">
+          <Profile name="青山ひかり" role="店長" emoji="☕" />
+          <Profile name="井上たくみ" role="バリスタ" emoji="🍵" />
+          <Profile name="宇野さくら" role="パティシエ" emoji="🍰" />
+        </ul>
+      );
+    }
+
+    // #root の中に App を描画する（React アプリの起動）
+    createRoot(document.querySelector('#root')).render(<App />);
+
+    // ----- 自動判定用（書き換えないこと）-----
+    window.__quizRenderProfile = (props) =>
+      new Promise((resolve) => {
+        const el = document.createElement('ul');
+        createRoot(el).render(React.createElement(Profile, props));
+        setTimeout(
+          () => resolve({ html: el.innerHTML, text: el.textContent }),
+          100
+        );
+      });
+  </script>
+</body>
+</html>
